@@ -1,7 +1,5 @@
 ---
 description: Generate project structure, documentation (PRD/SRS/UI Mockup), and code from a requirements file
-argument-hint: <path-to-requirements-file> [--phase init|docs|code]
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, TodoWrite, LS
 ---
 
 ## Input
@@ -16,10 +14,10 @@ Parse `$ARGUMENTS` to extract:
 
 Examples:
 ```
-/generate requirements.md                    → full pipeline
-/generate requirements.md --phase init       → Phase 1 only
-/generate requirements.md --phase docs       → Phase 2 only
-/generate requirements.md --phase code       → Phase 3 only
+/claude-gen:generate requirements.md                    → full pipeline
+/claude-gen:generate requirements.md --phase init       → Phase 1 only
+/claude-gen:generate requirements.md --phase docs       → Phase 2 only
+/claude-gen:generate requirements.md --phase code       → Phase 3 only
 ```
 
 If no `--phase` flag is provided → run the **full pipeline** (all 3 phases sequentially).
@@ -111,7 +109,7 @@ If ALL checks pass → drop checkpoint stash and proceed.
 
 **Pre-phase validation** (when running standalone with `--phase docs`):
 1. Verify `.generated/analysis/manifest.json` exists with valid `status`
-2. If missing → STOP: `"Phase 2 requires completed Phase 1. Run: /generate <file> --phase init"`
+2. If missing → STOP: `"Phase 2 requires completed Phase 1. Run: /claude-gen:generate <file> --phase init"`
 
 **Git checkpoint**: Create checkpoint before starting.
 
@@ -146,7 +144,7 @@ If critical checks pass → drop checkpoint stash and proceed.
 **Pre-phase validation** (when running standalone with `--phase code`):
 1. Verify `.generated/analysis/manifest.json` exists with valid `status`
 2. Verify `.generated/docs/manifest.json` exists with valid `status`
-3. If either missing → STOP: `"Phase 3 requires completed Phase 1 and 2. Run: /generate <file> --phase init then --phase docs"`
+3. If either missing → STOP: `"Phase 3 requires completed Phase 1 and 2. Run: /claude-gen:generate <file> --phase init then --phase docs"`
 
 **Git checkpoint**: Create checkpoint before starting.
 

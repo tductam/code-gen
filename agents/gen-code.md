@@ -32,11 +32,11 @@ Read ALL of these before generating any code:
 Before reading any specification documents:
 
 1. **Check Analysis Manifest**: Read `.generated/analysis/manifest.json`
-   - If missing → **STOP**: `"Cannot proceed: project analysis is missing. Run /generate with --phase init first."`
+   - If missing → **STOP**: `"Cannot proceed: project analysis is missing. Run /claude-gen:generate with --phase init first."`
    - If `status` is `"partial"` → **WARN** but continue
 
 2. **Check Docs Manifest**: Read `.generated/docs/manifest.json`
-   - If missing → **STOP**: `"Cannot proceed: documentation is missing. Run /generate with --phase docs first."`
+   - If missing → **STOP**: `"Cannot proceed: documentation is missing. Run /claude-gen:generate with --phase docs first."`
    - If `status` is `"partial"` → **WARN** but continue
    - Read `ui_mockups` and `api_contracts` arrays to know exact scope of generation
 

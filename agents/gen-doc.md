@@ -24,7 +24,7 @@ Before generating any documents:
 
 1. Read `.generated/analysis/manifest.json`
 2. Verify `status` is `"complete"` or `"partial"`
-3. If manifest is missing or `status` is neither → **STOP** and report: `"Cannot proceed: init-explorer analysis is missing or invalid. Run /generate with --phase init first."`
+3. If manifest is missing or `status` is neither → **STOP** and report: `"Cannot proceed: init-explorer analysis is missing or invalid. Run /claude-gen:generate with --phase init first."`
 4. If `status` is `"partial"` → **WARN** the user but continue, noting which analysis sections may be incomplete
 5. Verify at least `project-overview.md` and `tech-stack.md` exist in `.generated/analysis/`
 

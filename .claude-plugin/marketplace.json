@@ -1,0 +1,25 @@
+{
+    "name": "claude-gen-marketplace",
+    "owner": {
+        "name": "Trần Đức Tâm"
+    },
+    "metadata": {
+        "description": "Marketplace for Claude Gen — code generation, documentation, and project scaffolding plugin"
+    },
+    "plugins": [
+        {
+            "name": "claude-gen",
+            "source": "./",
+            "description": "Generate project structure, documentation (PRD/SRS/UI Mockup), and code from a requirements file",
+            "version": "1.0.0",
+            "category": "development-workflows",
+            "tags": [
+                "code-generation",
+                "documentation",
+                "scaffolding",
+                "prd",
+                "srs"
+            ]
+        }
+    ]
+}

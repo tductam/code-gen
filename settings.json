@@ -1,0 +1,6 @@
+{
+    "env": {
+        "GENERATED_DIR": ".generated",
+        "TEMPLATES_DIR": "templates"
+    }
+}

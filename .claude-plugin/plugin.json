@@ -1,0 +1,11 @@
+{
+  "name": "claude-gen",
+  "description": "Generate project structure, documentation (PRD/SRS/UI Mockup), and code from a requirements file",
+  "version": "1.0.0",
+  "author": {
+    "name": "Trần Đức Tâm"
+  },
+  "repository": "https://github.com/tductam/code-gen",
+  "license": "MIT",
+  "keywords": ["code-generation", "documentation", "prd", "srs", "scaffolding"]
+}

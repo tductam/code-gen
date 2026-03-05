@@ -6,21 +6,21 @@ Plugin tạo project structure, tài liệu (PRD/SRS/UI Mockup), và code từ f
 
 ### Full Pipeline
 ```
-/generate <đường-dẫn-file-yêu-cầu>
+/claude-gen:generate <đường-dẫn-file-yêu-cầu>
 ```
 
 ### Incremental (chạy từng phase)
 ```
-/generate requirements.md --phase init    # Phase 1: Analyze/Init only
-/generate requirements.md --phase docs    # Phase 2: Gen docs only
-/generate requirements.md --phase code    # Phase 3: Gen code only
+/claude-gen:generate requirements.md --phase init    # Phase 1: Analyze/Init only
+/claude-gen:generate requirements.md --phase docs    # Phase 2: Gen docs only
+/claude-gen:generate requirements.md --phase code    # Phase 3: Gen code only
 ```
 
 Ví dụ:
 ```
-/generate requirements.md
-/generate docs/feature-request.md
-/generate requirements.md --phase docs
+/claude-gen:generate requirements.md
+/claude-gen:generate docs/feature-request.md
+/claude-gen:generate requirements.md --phase docs
 ```
 
 ## Pipeline
