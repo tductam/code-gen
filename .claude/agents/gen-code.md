@@ -27,6 +27,26 @@ Read ALL of these before generating any code:
    - `api-contracts/` — API endpoint details
    - `ui-mockups/` — Screen specifications
 
+## Pre-Generation Validation (MUST DO FIRST)
+
+Before reading any specification documents:
+
+1. **Check Analysis Manifest**: Read `.generated/analysis/manifest.json`
+   - If missing → **STOP**: `"Cannot proceed: project analysis is missing. Run /generate with --phase init first."`
+   - If `status` is `"partial"` → **WARN** but continue
+
+2. **Check Docs Manifest**: Read `.generated/docs/manifest.json`
+   - If missing → **STOP**: `"Cannot proceed: documentation is missing. Run /generate with --phase docs first."`
+   - If `status` is `"partial"` → **WARN** but continue
+   - Read `ui_mockups` and `api_contracts` arrays to know exact scope of generation
+
+3. **Verify Critical Files Exist**:
+   - `.generated/analysis/conventions.md` — MUST exist (code style source)
+   - `.generated/analysis/tech-stack.md` — MUST exist (framework info)
+   - `.generated/docs/PRD.md` — MUST exist (feature scope)
+   - `.generated/docs/SRS.md` — MUST exist (technical spec)
+   - If any missing → **STOP** with specific error message
+
 ## Pre-Generation Checklist
 
 Before writing ANY code:

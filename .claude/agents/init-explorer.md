@@ -229,6 +229,36 @@ Even in Init Mode, write the same analysis files to `.generated/analysis/` docum
 
 ---
 
+## Manifest Output
+
+After generating ALL analysis files, write a manifest to `.generated/analysis/manifest.json`:
+
+```json
+{
+  "status": "complete",
+  "mode": "explorer | init",
+  "timestamp": "ISO 8601 timestamp",
+  "files_generated": [
+    "project-overview.md",
+    "tech-stack.md",
+    "frontend-structure.md",
+    "backend-structure.md",
+    "conventions.md"
+  ],
+  "warnings": [
+    "Section X had Low confidence — limited files to analyze"
+  ]
+}
+```
+
+Rules:
+- Set `status` to `"complete"` only if ALL 5 analysis files were successfully created
+- Set `status` to `"partial"` if any file could not be generated (e.g., no frontend detected → `frontend-structure.md` still created but marked as "Not applicable")
+- List any Low-confidence sections in `warnings`
+- The manifest is read by downstream agents to validate input completeness
+
+---
+
 ## Critical Rules
 
 - **NEVER guess** — only document what you can verify from actual files

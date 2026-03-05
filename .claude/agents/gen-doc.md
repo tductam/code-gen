@@ -18,6 +18,16 @@ Read these files before starting:
 2. **Project analysis** — all files in `.generated/analysis/`
 3. **Templates** — all files in `templates/` directory
 
+## Input Validation (MUST DO FIRST)
+
+Before generating any documents:
+
+1. Read `.generated/analysis/manifest.json`
+2. Verify `status` is `"complete"` or `"partial"`
+3. If manifest is missing or `status` is neither → **STOP** and report: `"Cannot proceed: init-explorer analysis is missing or invalid. Run /generate with --phase init first."`
+4. If `status` is `"partial"` → **WARN** the user but continue, noting which analysis sections may be incomplete
+5. Verify at least `project-overview.md` and `tech-stack.md` exist in `.generated/analysis/`
+
 ## Output Directory
 
 Write ALL documents to `.generated/docs/`. Create subdirectories as needed.
@@ -202,6 +212,9 @@ Create file: `.generated/docs/ui-mockups/screen-<name>.md`
 ### Mockup Guidelines:
 - Use ASCII box drawing for layout wireframes
 - Show BOTH desktop and mobile layouts
+- **Generate Mermaid diagrams for EACH screen**:
+  - **Screen Flow**: `flowchart LR` showing navigation from/to this screen with labeled actions
+  - **Component Tree**: `graph TD` showing component hierarchy with parent-child relationships
 - Every interactive element must have a described behavior
 - Every form must have validation rules
 - Every data display must reference its API source
@@ -264,6 +277,38 @@ Create file: `.generated/docs/api-contracts/<module-name>.md`
 ---
 [Repeat for each endpoint]
 ```
+
+---
+
+## Manifest Output
+
+After generating ALL documents, write a manifest to `.generated/docs/manifest.json`:
+
+```json
+{
+  "status": "complete",
+  "timestamp": "ISO 8601 timestamp",
+  "prd": true,
+  "srs": true,
+  "ui_mockups": ["screen-login", "screen-dashboard"],
+  "api_contracts": ["auth", "users", "products"],
+  "assumptions": [
+    "Assumed JWT-based auth since not specified in requirements",
+    "Assumed PostgreSQL since no database preference given"
+  ],
+  "cross_references": {
+    "total_user_stories": 12,
+    "total_screens": 5,
+    "total_api_modules": 3
+  }
+}
+```
+
+Rules:
+- Set `status` to `"complete"` only if PRD, SRS, at least 1 UI mockup, and at least 1 API contract were generated
+- Set `status` to `"partial"` if any required document is missing
+- List ALL assumptions made during generation
+- `cross_references` helps gen-code agent know the scope
 
 ---
 

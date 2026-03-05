@@ -4,14 +4,23 @@ Plugin tạo project structure, tài liệu (PRD/SRS/UI Mockup), và code từ f
 
 ## Cách sử dụng
 
+### Full Pipeline
 ```
 /generate <đường-dẫn-file-yêu-cầu>
+```
+
+### Incremental (chạy từng phase)
+```
+/generate requirements.md --phase init    # Phase 1: Analyze/Init only
+/generate requirements.md --phase docs    # Phase 2: Gen docs only
+/generate requirements.md --phase code    # Phase 3: Gen code only
 ```
 
 Ví dụ:
 ```
 /generate requirements.md
 /generate docs/feature-request.md
+/generate requirements.md --phase docs
 ```
 
 ## Pipeline
@@ -35,10 +44,12 @@ Tất cả artifacts trung gian được lưu tại `.generated/`:
 │   ├── frontend-structure.md
 │   ├── backend-structure.md
 │   ├── tech-stack.md
-│   └── conventions.md
+│   ├── conventions.md
+│   └── manifest.json      # Validation manifest
 └── docs/                  # Output Agent 2
     ├── PRD.md
     ├── SRS.md
+    ├── manifest.json       # Validation manifest
     ├── api-contracts/
     │   └── <module>.md
     └── ui-mockups/
@@ -47,10 +58,15 @@ Tất cả artifacts trung gian được lưu tại `.generated/`:
 
 Agent 3 ghi code trực tiếp vào source tree của project.
 
+## Safety Features
+
+- **Validation**: Mỗi agent tạo `manifest.json` — agent tiếp theo kiểm tra trước khi chạy
+- **Rollback**: Git checkpoint (stash) được tạo trước mỗi phase — tự động rollback nếu fail
+- **Non-destructive**: KHÔNG overwrite file có sẵn trừ khi user confirm
+
 ## Conventions
 
-- Mỗi agent đọc output của agent trước qua `.generated/`
-- KHÔNG overwrite file có sẵn trừ khi user confirm
+- Mỗi agent đọc output của agent trước qua `.generated/` + kiểm tra `manifest.json`
 - Luôn match code style hiện tại (indent, quotes, naming)
 - Templates nằm trong `templates/` — dùng làm scaffold cho documents
 - File yêu cầu đầu vào phải là Markdown (.md)
