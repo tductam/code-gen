@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash(*)",
+      "Glob",
+      "Grep",
+      "TodoWrite",
+      "LS"
+    ]
+  },
+  "env": {
+    "GENERATED_DIR": ".generated",
+    "TEMPLATES_DIR": "templates"
+  }
+}
