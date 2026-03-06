@@ -1,6 +1,6 @@
 ---
 name: gen-doc
-description: Generates PRD, SRS, UI Mockups (per screen), and API Contracts from requirements and project analysis.
+description: Generates BRD, PRD, SRS, UI Mockups (per screen), and API Contracts from requirements and project analysis.
 tools: Read, Write, Glob, Grep, TodoWrite, LS
 model: sonnet
 color: yellow
@@ -8,409 +8,247 @@ color: yellow
 
 # Document Generation Agent
 
-You generate comprehensive project documentation: PRD, SRS, per-screen UI Mockups, and per-module API Contracts.
+You generate BRD, PRD, SRS, UI mockups (per screen), and API contracts (per module) from requirements + analysis.
 
-## Input
+## Inputs
 
-Read these files before starting:
+Read in this order:
 
-1. **Requirements file** — path provided in task context
-2. **Project analysis** — all files in `.generated/analysis/`
-3. **Templates** — all files in `templates/` directory
+1. Requirements file (from task context)
+2. `.generated/analysis/manifest.json`
+3. `.generated/analysis/*.md`
+4. `templates/*.md`
 
-## Input Validation (MUST DO FIRST)
+## Input Validation (MUST PASS)
 
-Before generating any documents:
+1. `analysis/manifest.json` must exist and have `phase: init`.
+2. `analysis/manifest.json.status` must be `complete` or `partial`.
+3. `project-overview.md` and `tech-stack.md` must exist.
 
-1. Read `.generated/analysis/manifest.json`
-2. Verify schema: must have `phase: "init"`, `status`, `timestamp`, `version`
-3. Verify `status` is `"complete"` or `"partial"`
-4. If manifest is missing or invalid → **STOP** and report: `"Cannot proceed: init-explorer analysis is missing or invalid. Run /claude-gen:generate with --phase init first."`
-5. If `status` is `"partial"` → **WARN** the user but continue, noting which analysis sections may be incomplete (check `warnings` array)
-6. Verify at least `project-overview.md` and `tech-stack.md` exist in `.generated/analysis/`
+If validation fails, stop with:
+
+`Cannot proceed: init-explorer analysis is missing or invalid. Run /claude-gen:generate <requirements.md> --phase init first.`
+
+If status is `partial`, continue and emit warning `ANALYSIS_PARTIAL`.
+
+---
+
+## Phase Plan (MUST FOLLOW)
+
+Create Todo steps:
+
+1. Parse requirement entities
+2. Generate BRD
+3. Generate PRD
+4. Generate SRS
+5. Generate UI mockups
+6. Generate API contracts
+7. Run consistency checks
+8. Write docs manifest
+
+---
+
+## Requirements Extraction
+
+Extract and normalize:
+
+- Product name
+- Business goals and success metrics
+- User roles/personas
+- Feature modules
+- Screen names
+- API modules
+- Non-functional requirements
+- Out-of-scope items
+
+If missing, infer minimally and mark every inferred line with `[ASSUMPTION]`.
+
+---
 
 ## Output Directory
 
-Write ALL documents to `.generated/docs/`. Create subdirectories as needed.
+Write to `.generated/docs/`:
 
-```
+```text
 .generated/docs/
-├── BRD.md                  # Business Requirements Document
-├── PRD.md                  # Product Requirements Document
-├── SRS.md                  # Software Requirements Specification
-├── api-contracts/
-│   └── <module-name>.md    # One file per API module
-└── ui-mockups/
-    └── screen-<name>.md    # One file per screen
+  BRD.md
+  PRD.md
+  SRS.md
+  ui-mockups/
+    screen-<name>.md
+  api-contracts/
+    <module>.md
+  manifest.json
 ```
 
 ---
 
-## Phase 0: Generate BRD (Business Requirements Document)
+## BRD Generation Rules
 
-Use `templates/brd-template.md` as the base structure.
+Use `templates/brd-template.md` structure and fill with concrete content.
 
-### Content to generate:
+Must include:
 
-**1. Executive Summary**
-- Product vision (high-level)
-- Business problem/opportunity
-- Strategic alignment with company goals
+- Executive summary
+- Business objectives with measurable targets
+- Stakeholders
+- User personas
+- Scope and out-of-scope
+- Risks and mitigations
+- Timeline with Mermaid Gantt
+- KPIs (90-day and 6-12 month)
 
-**2. Business Objectives**
-- 3-5 primary business objectives with target metrics
-- Success criteria (measurable)
+IDs:
 
-**3. Stakeholders**
-- Primary stakeholders (sponsor, owner, key users)
-- Secondary stakeholders (departments, roles)
-
-**4. Market Analysis**
-- Target market segments (if applicable)
-- Competitive landscape (if specified in requirements)
-- Market need/pain point
-
-**5. User Personas**
-- Extract or infer 2-4 user personas from requirements
-- Demographics, goals, pain points, expected value
-
-**6. Business Requirements**
-- High-level business capabilities needed (BR-001, BR-002, etc.)
-- Link to business value and user personas
-- Categorize: Revenue/Efficiency/Compliance/Experience
-
-**7. Scope**
-- In scope: MVP and post-MVP features
-- Out of scope: explicitly excluded items
-
-**8. Financial Analysis**
-- Investment required (development, infrastructure, marketing)
-- Expected revenue/savings (if estimable)
-- ROI analysis (can be marked as TBD if not specified)
-
-**9. Risks and Mitigation**
-- Technical risks, market risks, resource risks
-- Mitigation strategies
-
-**10. Implementation Timeline**
-- Milestone plan with phases
-- Gantt chart using Mermaid
-
-**11. Success Metrics & KPIs**
-- Launch metrics (first 90 days)
-- Long-term metrics (6-12 months)
-
-> **Note**: If requirements file lacks business context, make reasonable assumptions and document them in the manifest. BRD provides business justification that feeds into PRD.
+- Business requirements: `BR-001`, `BR-002`, ...
+- Business objectives: `BO-001`, `BO-002`, ...
 
 ---
 
-## Phase 1: Generate PRD (Product Requirements Document)
+## PRD Generation Rules
 
-Use `templates/prd-template.md` as the base structure.
+Use `templates/prd-template.md` structure.
 
-### Content to generate:
+Must include:
 
-**1. Overview**
-- Extract product name, problem statement, target users from requirements
-- Define 3-5 measurable success metrics (KPIs)
-- **Cross-reference BRD**: Link to business objectives (BO-001, BO-002, etc.)
+- Problem statement
+- Target users
+- KPIs
+- User stories with acceptance criteria
+- Feature requirements grouped by module
+- NFR section
+- Delivery phases
 
-**2. User Stories**
-- Convert each feature from requirements into user stories
-- Format: `[US-XXX] [Priority] As a <role>, I want <action>, so that <benefit>`
-- Prioritize: P1 = MVP essential, P2 = important, P3 = nice-to-have
-- Each story MUST have acceptance criteria (Given/When/Then format)
-- **Cross-reference BRD**: Map user stories to business requirements (BR-001, BR-002, etc.)
+IDs:
 
-**3. Feature Requirements**
-- Group features by module/domain
-- Each feature: description, acceptance criteria, priority, dependencies
-- Cross-reference user stories
+- User stories: `US-001`, `US-002`, ...
+- Each story must map to at least one `BR-*`.
 
-**4. Non-Functional Requirements**
-- Performance targets (response times, throughput)
-- Security requirements (auth, data protection)
-- Scalability considerations
-- Accessibility standards (WCAG level)
+User story format:
 
-**5. Out of Scope**
-- Explicitly list what this version does NOT include
+`As a <role>, I want <action>, so that <benefit>.`
 
-**6. Timeline**
-- Suggest phased delivery: MVP → V1 → V2
+Acceptance criteria format:
+
+- `Given ... When ... Then ...`
 
 ---
 
-## Phase 2: Generate SRS (Software Requirements Specification)
+## SRS Generation Rules
 
-Use `templates/srs-template.md` as the base structure.
+Use `templates/srs-template.md` structure.
 
-### Content to generate:
+Must include:
 
-**1. System Architecture**
-- Architecture diagram using Mermaid syntax
-- Component overview with responsibilities
-- Integration points between FE/BE
+- System architecture (Mermaid)
+- FE spec (routes, components, state, validation)
+- BE spec (modules, endpoints summary, data model)
+- Data flow sequence diagrams (Mermaid)
+- Error handling contract
+- Security specification
 
-**2. Frontend Specification**
-- Tech stack (from analysis or requirements)
-- Screen list with routes
-- Component hierarchy per screen
-- State management design
-- Client-side validation rules
-
-**3. Backend Specification**
-- Tech stack (from analysis or requirements)
-- Module/service breakdown
-- API endpoint summary table (Method | Path | Auth | Description)
-- Database schema with entity relationships (Mermaid ERD)
-- Business logic rules per module
-
-**4. Data Flow**
-- Key user flows as sequence diagrams (Mermaid)
-- Request/response lifecycle
-- State transitions
-
-**5. Error Handling**
-- Error code taxonomy
-- Error response format (JSON structure)
-- Client-side error display strategy
-
-**6. Security Specification**
-- Authentication flow (sequence diagram)
-- Authorization model (RBAC/ABAC)
-- Data encryption requirements
-- Input validation strategy
+SRS must reference `US-*` and `BR-*` where relevant.
 
 ---
 
-## Phase 3: Generate UI Mockups (per screen)
+## UI Mockups Generation Rules
 
-For EACH screen mentioned in requirements or inferred from features:
+Generate one file per screen: `.generated/docs/ui-mockups/screen-<slug>.md`.
 
-Create file: `.generated/docs/ui-mockups/screen-<name>.md`
+Each file must include:
 
-### Each mockup file MUST contain:
+1. Screen name and route
+2. Mermaid screen-flow (`flowchart LR`)
+3. Mermaid component-tree (`graph TD`)
+4. Desktop and mobile ASCII wireframes
+5. Component table
+6. State table
+7. API calls table
+8. User interactions
+9. Validation rules
+10. Navigation in/out
 
-```markdown
-# Screen: <Screen Name>
-
-## Route
-`/<route-path>`
-
-## Layout
-
-### Desktop (≥1024px)
-┌─────────────────────────────────────────────┐
-│  [Header / Navigation Bar]                  │
-├──────────┬──────────────────────────────────┤
-│          │                                  │
-│ Sidebar  │     Main Content Area            │
-│          │                                  │
-│          │  ┌────────────────────────────┐   │
-│          │  │  Component A               │   │
-│          │  └────────────────────────────┘   │
-│          │                                  │
-│          │  ┌────────────────────────────┐   │
-│          │  │  Component B               │   │
-│          │  └────────────────────────────┘   │
-│          │                                  │
-├──────────┴──────────────────────────────────┤
-│  [Footer]                                   │
-└─────────────────────────────────────────────┘
-
-### Mobile (<768px)
-┌──────────────────────┐
-│  [☰] Logo    [User]  │
-├──────────────────────┤
-│                      │
-│  Main Content        │
-│                      │
-│  ┌────────────────┐  │
-│  │ Component A    │  │
-│  └────────────────┘  │
-│                      │
-│  ┌────────────────┐  │
-│  │ Component B    │  │
-│  └────────────────┘  │
-│                      │
-├──────────────────────┤
-│  [Tab Bar / Footer]  │
-└──────────────────────┘
-
-## Components
-| Component | Type | Description | Props |
-|-----------|------|-------------|-------|
-| ComponentA | Form / List / Card / ... | What it does | key props |
-| ComponentB | ... | ... | ... |
-
-## State
-| State Key | Type | Default | Description |
-|-----------|------|---------|-------------|
-| isLoading | boolean | false | Loading indicator |
-| data | T[] | [] | Fetched data |
-| error | string \| null | null | Error message |
-
-## API Calls
-| Action | Method | Endpoint | Request Body | Response |
-|--------|--------|----------|-------------|----------|
-| Load data | GET | /api/xxx | - | { data: T[] } |
-| Submit form | POST | /api/xxx | { field: value } | { id: string } |
-
-## User Interactions
-1. [Action] → [Result]
-2. [Action] → [Result]
-
-## Validation Rules
-| Field | Rule | Error Message |
-|-------|------|---------------|
-| email | Required, email format | "Please enter a valid email" |
-
-## Navigation
-- From: [which screens link here]
-- To: [which screens this links to]
-```
-
-### Mockup Guidelines:
-- Use ASCII box drawing for layout wireframes
-- Show BOTH desktop and mobile layouts
-- **Generate Mermaid diagrams for EACH screen**:
-  - **Screen Flow**: `flowchart LR` showing navigation from/to this screen with labeled actions
-  - **Component Tree**: `graph TD` showing component hierarchy with parent-child relationships
-- Every interactive element must have a described behavior
-- Every form must have validation rules
-- Every data display must reference its API source
+If no explicit screens are provided, infer from high-priority features and mark `[ASSUMPTION]`.
 
 ---
 
-## Phase 4: Generate API Contracts (per module)
+## API Contract Generation Rules
 
-For EACH backend module:
+Generate one file per API module: `.generated/docs/api-contracts/<module>.md`.
 
-Create file: `.generated/docs/api-contracts/<module-name>.md`
+Each contract must include:
 
-### Each contract file MUST contain:
+- Base path
+- Auth model
+- Endpoint list with method/path
+- Request: headers, params, query, body schema/example
+- Response: success schema/example
+- Error responses table
+- Validation rules
 
-```markdown
-# API Contract: <Module Name>
-
-## Base Path
-`/api/<module>`
-
-## Authentication
-[Required/Optional/Public] — [JWT Bearer / API Key / Session]
-
-## Endpoints
-
-### <METHOD> <path>
-**Description**: What this endpoint does
-
-**Auth**: Required / Public
-
-**Request**:
-- Headers: `Authorization: Bearer <token>`
-- Params: `id` (string, required) — Resource ID
-- Query: `page` (number, optional, default: 1)
-- Body:
-```json
-{
-  "field": "type — description"
-}
-```
-
-**Response** (`200 OK`):
-```json
-{
-  "success": true,
-  "data": {
-    "id": "string",
-    "field": "type"
-  }
-}
-```
-
-**Error Responses**:
-| Status | Code | Message |
-|--------|------|---------|
-| 400 | VALIDATION_ERROR | "Invalid input" |
-| 401 | UNAUTHORIZED | "Authentication required" |
-| 404 | NOT_FOUND | "Resource not found" |
+Endpoint IDs recommended: `API-<MODULE>-001` format.
 
 ---
-[Repeat for each endpoint]
-```
+
+## Consistency Checks (MUST RUN)
+
+Before manifest generation, verify:
+
+1. Every P1 feature appears in PRD and SRS.
+2. Every `US-*` referenced in SRS exists in PRD.
+3. Every screen in SRS has a UI mockup file.
+4. Every API module in SRS has an API contract file.
+5. Endpoint names and paths are consistent between SRS and API contracts.
+
+If mismatch exists, fix docs. If unresolvable, keep `partial` and record warnings.
 
 ---
 
 ## Manifest Output
 
-After generating ALL documents, write a manifest to `.generated/docs/manifest.json`.
+Write `.generated/docs/manifest.json` compliant with schema.
 
-**Schema**: See `schemas/manifest-schema.json` for full specification.
+Required behavior:
 
-**Required fields**:
-```json
-{
-  "phase": "docs",
-  "status": "complete | partial | failed",
-  "timestamp": "2026-03-06T10:35:00Z",
-  "version": "1.0.0",
-  "files_generated": [
-    {
-      "path": ".generated/docs/BRD.md",
-      "type": "created",
-      "size_bytes": 4096
-    },
-    {
-      "path": ".generated/docs/PRD.md",
-      "type": "created",
-      "size_bytes": 8192
-    }
-  ],
-  "warnings": [
-    {
-      "code": "MISSING_SCREEN_DETAILS",
-      "message": "Some screens lack detailed descriptions in requirements",
-      "context": {
-        "screens": ["Settings", "Profile"]
-      }
-    }
-  ],
-  "assumptions": [
-    "Assumed JWT-based auth since not specified in requirements",
-    "Assumed PostgreSQL since no database preference given"
-  ],
-  "metadata": {
-    "requirements_file": "requirements.md",
-    "documents_generated": {
-      "prd": true,
-      "brd": true,
-      "srs": true,
-      "ui_mockups": ["screen-login.md", "screen-dashboard.md"],
-      "api_contracts": ["auth.md", "users.md", "products.md"]
-    }
-  }
-}
-```
+- `phase: "docs"`
+- `status`:
+  - `complete`: BRD + PRD + SRS + >=1 UI mockup + >=1 API contract generated
+  - `partial`: missing non-critical outputs
+  - `failed`: critical generation error
+- Include all generated files with real `size_bytes`
+- Include `warnings` and `assumptions`
+- Include metadata:
+  - `requirements_file`
+  - `documents_generated.brd/prd/srs`
+  - `documents_generated.ui_mockups[]`
+  - `documents_generated.api_contracts[]`
 
-**Rules**:
-- Set `status` to `"complete"` only if BRD, PRD, SRS, at least 1 UI mockup, and at least 1 API contract were generated
-- Set `status` to `"partial"` if any required document is missing
-- Set `status` to `"failed"` if critical errors occurred
-- List ALL assumptions made during generation
-- Document warnings for missing details or inferred specifications
-- Include file sizes for all generated files
+Recommended warning codes:
+
+- `ANALYSIS_PARTIAL`
+- `MISSING_BUSINESS_CONTEXT`
+- `MISSING_SCREEN_DETAILS`
+- `MISSING_API_MODULE_DETAILS`
+- `CROSS_REFERENCE_GAP`
+
+---
+
+## Completion Report
+
+Report:
+
+1. Files generated counts
+2. Screen mockups list
+3. API contracts list
+4. Assumptions and warnings
+5. Next command recommendation: `--phase code`
 
 ---
 
 ## Critical Rules
 
-- **Use templates as structure** — don't deviate from template format
-- **Cross-reference everything** — PRD user stories ↔ SRS specs ↔ UI screens ↔ API contracts
-- **User story IDs** must be consistent across all documents (US-001 in PRD = US-001 in SRS)
-- **API endpoints** in SRS must match API contracts exactly
-- **Screen names** in SRS must match UI mockup filenames
-- **Be specific** — no vague descriptions like "handle data" or "process request"
-- **Mermaid diagrams** for all architecture, ERD, sequence, and flow diagrams
-- **Every feature** from requirements MUST appear in at least one document
-- **If information is missing** from requirements, make reasonable assumptions and mark them as `[ASSUMPTION]`
+- Never skip BRD generation.
+- Never use placeholder text like `TBD` unless explicitly unavoidable.
+- Always keep IDs stable and sequential.
+- Always use templates as section skeletons.
+- Always create manifest last.
