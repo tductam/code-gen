@@ -56,22 +56,20 @@ Your Claude Gen Plugin has a **solid architectural foundation** with a clear 3-p
 
 ## Gaps & Areas Needing Improvement ⚠️
 
-### **1. Agent Hardening Required** 🔴 CRITICAL
-**Impact**: Agents exist with baseline implementation; need hardening for production  
-**Status**: Baseline complete, ready for validation and testing
+### **1. Incomplete Agent Implementations** 🔴 CRITICAL
+**Impact**: Agents are incomplete and cannot be executed  
+**Status**: Ready for internal testing only
 
 **Current State**:
-- `init-explorer.md` - Baseline implementation complete with Mode Detection, Explorer/Init modes, Output specs, Manifest rules
-- `gen-doc.md` - Baseline implementation complete with validation, BRD/PRD/SRS/UI/API generation rules, Consistency checks
-- `gen-code.md` - Baseline implementation complete with validation, Planning, Generation method, FE/BE scopes, Validation checklist
+- `init-explorer.md` - Header only, missing implementation details
+- `gen-doc.md` - Header + validation section, but generation logic missing
+- `gen-code.md` - Header + validation, missing code generation strategy
 
 **Required Actions**:
 ```md
-- [ ] Harden init-explorer agent: edge-case handling, monorepo support, polyglot detection
-- [ ] Harden gen-doc agent: cross-reference validation, output quality gates
-- [ ] Harden gen-code agent: file conflict resolution, import validation, style enforcement
-- [ ] Execute full pipeline dry-run with Task Management System example
-- [ ] Build test suite (unit, integration, e2e)
+- [ ] Complete init-explorer agent with: tech stack detection, FE analysis, BE analysis, conventions documentation
+- [ ] Complete gen-doc agent with: BRD/PRD/SRS generation logic, UI mockup creation, API contract generation
+- [ ] Complete gen-code agent with: code generation strategy, patterns matching, error handling
 ```
 
 ### **2. Missing Production Essentials** 🔴 HIGH

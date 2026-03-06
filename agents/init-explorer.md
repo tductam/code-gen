@@ -57,6 +57,7 @@ Check:
 - FE frameworks: Next.js, React, Vue, Angular, Svelte
 - BE frameworks: NestJS, Express, FastAPI, Django, Gin, Spring
 - DB/ORM: Prisma, TypeORM, Drizzle, Sequelize, SQLAlchemy, GORM
+- Build tools: Webpack, Vite, Turbopack, Rollup, esbuild, SWC (check config files: `tsconfig.json`, `vite.config.*`, `webpack.config.*`, `rollup.config.*`)
 - Tooling: TypeScript, ESLint, Prettier, Biome, Ruff, Docker, CI workflows
 
 Write detection confidence per section:
@@ -72,8 +73,8 @@ Identify:
 - Component organization (feature-based, layered, atomic)
 - Routing approach (file-based vs router config)
 - State management libraries and usage pattern
-- Styling system (Tailwind/CSS modules/styled-components)
-- Form/validation approach
+- Styling system (Tailwind, CSS modules, styled-components, MUI, Ant Design, shadcn/ui, Bootstrap, Chakra UI)
+- Form/validation approach (React Hook Form, Formik, Zod, Yup)
 
 Read at least 3 representative FE files and quote file references in output.
 
@@ -96,6 +97,10 @@ Extract:
 - Indentation, quotes, semicolon usage, trailing commas
 - Naming style for files, components, classes, constants
 - Import ordering/grouping
+- Barrel/index export patterns (`index.ts` re-exports)
+- Comment/doc style: JSDoc (`/** */`), TSDoc, Python docstrings, Go doc comments
+- Type definition patterns: TypeScript interfaces vs types, Zod schemas, Pydantic models, Go structs
+- File structure conventions: layouts, barrel exports, module boundaries
 - Test naming/location conventions
 - Env naming patterns from `.env*` examples (do not copy secrets)
 
@@ -121,7 +126,7 @@ If stack unspecified, default to:
 - Frontend: Next.js + TypeScript
 - Backend: NestJS + TypeScript
 
-Create directories only (minimal non-destructive init):
+Create directories and essential project files:
 
 ```text
 frontend/
@@ -132,13 +137,27 @@ frontend/
     lib/
     styles/
     types/
+  package.json          # with project name, scripts (dev/build/lint/start)
+  tsconfig.json         # if TypeScript requested
+  .env.example          # with placeholder keys (no real secrets)
 backend/
   src/
     modules/
     common/
     config/
     database/
+  package.json          # or pyproject.toml / go.mod per stack
+  tsconfig.json         # if TypeScript requested
+  .env.example          # DB_URL, JWT_SECRET, PORT placeholders
+README.md               # project name, description, setup instructions
+.gitignore              # node_modules, dist, .env, __pycache__, etc.
 ```
+
+Config file generation rules:
+- `package.json`: include `name`, `version: "0.1.0"`, `private: true`, `scripts`.
+- `tsconfig.json`: strict mode, path aliases matching directory structure.
+- `.env.example`: placeholder keys only (`DB_URL=postgresql://localhost:5432/dbname`).
+- `README.md`: project name, description, prerequisites, setup steps, available scripts.
 
 ### Step 3: Git Bootstrap (Safe)
 
@@ -167,6 +186,44 @@ Write all outputs to `.generated/analysis/`:
 1. Each markdown file must contain a `## Confidence` section with `High/Medium/Low` and reason.
 2. Each file should include evidence references like `src/app/page.tsx:12` where possible.
 3. If section not detected, write `Not detected` explicitly.
+
+### Output Format Examples
+
+**tech-stack.md** example structure:
+```markdown
+# Tech Stack
+## Frontend
+- Framework: Next.js 14 (App Router) — `next.config.mjs:1`
+- Language: TypeScript 5.3 — `tsconfig.json`
+- Styling: Tailwind CSS 3.4 — `tailwind.config.ts`
+## Backend
+- Framework: NestJS 10 — `nest-cli.json`
+- ORM: Prisma 5.7 — `prisma/schema.prisma`
+## Confidence
+High — all items confirmed from config files.
+```
+
+**conventions.md** example structure:
+```markdown
+# Code Conventions
+## Formatting
+- Indent: 2 spaces — `.prettierrc`
+- Quotes: single — `eslintrc.json`
+- Semicolons: yes
+- Trailing commas: all
+## Naming
+- Files: kebab-case (`user-profile.tsx`)
+- Components: PascalCase (`UserProfile`)
+- Functions: camelCase
+- Constants: UPPER_SNAKE_CASE
+## Imports
+- Order: built-in → external → internal → relative
+- Barrel exports: yes (`components/index.ts`)
+## Doc Style
+- JSDoc on exported functions
+## Confidence
+High — extracted from 12 source files.
+```
 
 ---
 

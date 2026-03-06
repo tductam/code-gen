@@ -10,37 +10,33 @@
 
 ### Core Implementation ✅ Must Complete
 
-**Agent Implementations** (All 3 baseline complete)
-- [x] **init-explorer.md** ✅ Baseline complete Mar 6
-  - [x] Mode detection (Explorer/Init)
-  - [x] Tech stack detection logic
-  - [x] Frontend structure analysis
-  - [x] Backend structure analysis
-  - [x] Conventions documentation
-  - [x] Init mode (project scaffolding)
-  - [x] Output format documented
-  - [x] Manifest rules and critical rules
+**Agent Implementations** (All 3 must be complete)
+- [ ] **init-explorer.md**
+  - [ ] Tech stack detection logic
+  - [ ] Frontend structure analysis
+  - [ ] Backend structure analysis
+  - [ ] Conventions documentation
+  - [ ] Init mode (project scaffolding)
+  - [ ] Output format documented
+  - [ ] Examples provided
 
-- [x] **gen-doc.md** ✅ Baseline complete Mar 6
-  - [x] Input validation logic
-  - [x] BRD generation rules
-  - [x] PRD generation rules
-  - [x] SRS generation rules
-  - [x] UI mockup generation rules (per screen)
-  - [x] API contract generation rules (per module)
-  - [x] Consistency check rules
-  - [x] Manifest rules
+- [ ] **gen-doc.md**
+  - [ ] BRD generation logic
+  - [ ] PRD generation logic
+  - [ ] SRS generation logic
+  - [ ] UI mockup generation (per screen)
+  - [ ] API contract generation (per module)
+  - [ ] Output validation
+  - [ ] Examples for each document type
 
-- [x] **gen-code.md** ✅ Baseline complete Mar 6
-  - [x] Pre-generation validation
-  - [x] Code generation strategy
-  - [x] Style and convention rules
-  - [x] Frontend code generation scope
-  - [x] Backend code generation scope
-  - [x] Overwrite policy
-  - [x] Dependency tracking
-  - [x] Validation checklist
-  - [x] Manifest rules
+- [ ] **gen-code.md**
+  - [ ] Code generation strategy
+  - [ ] Frontend code generation
+  - [ ] Backend code generation
+  - [ ] Code quality checks
+  - [ ] Error handling & recovery
+  - [ ] Output & manifest creation
+  - [ ] Examples for FE and BE
 
 ### Documentation ✅ Must Complete
 

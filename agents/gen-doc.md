@@ -92,8 +92,10 @@ Must include:
 - Executive summary
 - Business objectives with measurable targets
 - Stakeholders
+- Market analysis and competitive landscape (if business context provided)
 - User personas
 - Scope and out-of-scope
+- Financial analysis: estimated costs, expected ROI, cost-benefit summary (if business context provided; otherwise mark `[ASSUMPTION]`)
 - Risks and mitigations
 - Timeline with Mermaid Gantt
 - KPIs (90-day and 6-12 month)
@@ -143,6 +145,7 @@ Must include:
 - System architecture (Mermaid)
 - FE spec (routes, components, state, validation)
 - BE spec (modules, endpoints summary, data model)
+- Database schema with Mermaid ER diagram (`erDiagram`)
 - Data flow sequence diagrams (Mermaid)
 - Error handling contract
 - Security specification
@@ -160,13 +163,15 @@ Each file must include:
 1. Screen name and route
 2. Mermaid screen-flow (`flowchart LR`)
 3. Mermaid component-tree (`graph TD`)
-4. Desktop and mobile ASCII wireframes
+4. Desktop, tablet, and mobile ASCII wireframes
 5. Component table
 6. State table
 7. API calls table
 8. User interactions
 9. Validation rules
-10. Navigation in/out
+10. Error states and empty states with user-facing messages
+11. Auth/permission requirements for the screen
+12. Navigation in/out
 
 If no explicit screens are provided, infer from high-priority features and mark `[ASSUMPTION]`.
 
@@ -185,6 +190,8 @@ Each contract must include:
 - Response: success schema/example
 - Error responses table
 - Validation rules
+- Rate limiting rules (requests per minute/hour, burst limit)
+- Example curl commands for primary endpoints
 
 Endpoint IDs recommended: `API-<MODULE>-001` format.
 

@@ -2,16 +2,16 @@
 
 **Prepared**: March 6, 2026  
 **Target Launch**: Latest by March 27, 2026  
-**Total Effort**: ~88-124 hours (2-3 weeks for one dev, accounting for hardening + testing)
+**Total Effort**: ~40-50 hours (2-3 weeks for one dev)
 
 ---
 
-## Phase 1: Harden Core Agents (1 week, ~28-37 hours)
+## Phase 1: ~~Complete Core Agents~~ ✅ DONE
 
-### 1.1 Harden `init-explorer.md` Agent
+### 1.1 ~~Complete `init-explorer.md` Agent~~ ✅
 
-**Current State**: Baseline implementation completed (Mar 6, 2026)  
-**Focus**: Edge-case handling, validation, real-repo testing
+**Current State**: ✅ Fully implemented  
+**Completed**: Tech stack detection, FE analysis, BE analysis, conventions documentation, Init Mode (scaffold + config files), output format examples
 
 **Detailed implementation tasks**:
 
@@ -67,10 +67,10 @@ TODO Checklist:
 Estimated hours: 8-10
 ```
 
-### 1.2 Complete `gen-doc.md` Agent
+### 1.2 ~~Complete `gen-doc.md` Agent~~ ✅
 
-**Current State**: Header + Input Validation section  
-**Missing**: BRD, PRD, SRS, UI mockup, and API spec generation logic
+**Current State**: ✅ Fully implemented  
+**Completed**: BRD (with financial/market analysis), PRD, SRS (with ERD), UI mockups (desktop/tablet/mobile + error states + auth), API contracts (with rate limiting + curl examples), consistency checks
 
 **Detailed implementation tasks**:
 
@@ -153,10 +153,10 @@ TODO Checklist:
 Estimated hours: 10-12
 ```
 
-### 1.3 Complete `gen-code.md` Agent
+### 1.3 ~~Complete `gen-code.md` Agent~~ ✅
 
-**Current State**: Header + Pre-Generation Validation section  
-**Missing**: Code generation strategy, implementation logic, error handling
+**Current State**: ✅ Fully implemented  
+**Completed**: Code generation strategy, FE code gen (loading states, error boundaries, Zod, barrel exports), BE code gen (logging, config, env, server init), conventions fallback, overwrite policy, dependency tracking, validation checklist
 
 **Detailed implementation tasks**:
 

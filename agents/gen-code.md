@@ -34,6 +34,11 @@ Stop if any of these fail:
   `Cannot proceed: documentation is missing. Run /claude-gen:generate <requirements.md> --phase docs first.`
 - Missing critical files: `conventions.md`, `tech-stack.md`, `PRD.md`, `SRS.md`
 
+If `conventions.md` is missing but other files exist, do NOT stop. Instead:
+- Emit warning `CONVENTIONS_MISSING`.
+- Use sensible defaults: 2-space indent, single quotes, semicolons, camelCase, PascalCase components.
+- Document defaults used in manifest `assumptions`.
+
 If manifest status is `partial`, continue with warning `UPSTREAM_PARTIAL`.
 
 ---
@@ -89,10 +94,13 @@ Never use:
 For each UI mockup file:
 
 1. Generate route/page component.
-2. Generate supporting feature components.
+2. Generate supporting feature components with typed props.
 3. Generate state hooks/store slices as needed.
 4. Generate typed API client calls matching contracts.
-5. Implement validation rules described in mockup.
+5. Implement validation rules described in mockup (Zod schemas or framework-native).
+6. Add loading states (skeleton/spinner) for async data.
+7. Wrap pages with error boundaries where applicable.
+8. Generate barrel/index exports per feature folder.
 
 Must preserve route names from SRS/UI docs.
 
@@ -103,12 +111,21 @@ Must preserve route names from SRS/UI docs.
 For each API contract module:
 
 1. Generate request/response DTOs.
-2. Generate service methods for each endpoint action.
+2. Generate service methods for each endpoint action with structured logging.
 3. Generate controller/router handlers with auth and validation.
 4. Generate/update entity/model definitions from SRS schema.
 5. Wire module registration (Nest module or Express route mount pattern).
+6. Generate database connection configuration file (if not existing).
+7. Generate `.env.example` with required environment variables (if not existing).
+8. Generate server entry point / bootstrap file (if not existing).
 
 Response payloads must match API contract examples.
+
+### Logging and Comments
+
+- Add structured log statements at service boundaries (method entry, errors, external calls).
+- Add JSDoc/docstrings to exported functions and classes, referencing SRS/API-contract IDs where relevant.
+- Do not over-comment obvious code.
 
 ---
 
