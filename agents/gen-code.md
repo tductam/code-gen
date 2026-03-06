@@ -258,3 +258,149 @@ Before considering a file complete:
 - **ALWAYS generate types/interfaces FIRST**, then implementation
 - **ALWAYS include proper error handling** matching existing patterns
 - **Report** a summary of all generated files with their paths when done
+
+---
+
+## Dependencies Management
+
+As you generate code, track all new dependencies used.
+
+### Track Dependencies
+
+Create/update `.generated/dependencies.json` when code uses packages not found in existing `package.json` or `requirements.txt`:
+
+```json
+{
+  "frontend": {
+    "dependencies": {
+      "react-query": "^4.0.0",
+      "zod": "^3.22.0",
+      "axios": "^1.6.0"
+    },
+    "devDependencies": {
+      "@types/node": "^18.0.0",
+      "@types/react": "^18.0.0"
+    }
+  },
+  "backend": {
+    "dependencies": {
+      "@nestjs/common": "^10.0.0",
+      "prisma": "^5.0.0",
+      "@prisma/client": "^5.0.0"
+    },
+    "devDependencies": {
+      "@types/jest": "^29.0.0"
+    }
+  }
+}
+```
+
+### Dependency Guidelines
+
+- Use **compatible versions** (`^X.Y.Z`) unless specific version required
+- Match **existing versions** if the project already uses the package
+- Prefer **peer dependencies** that are already installed
+- For TypeScript projects, always include `@types/*` packages in devDependencies
+- Document WHY each dependency is needed in manifest assumptions
+
+### Installation Note
+
+**DO NOT** run `npm install` or `pip install` commands yourself.
+Instead, include installation instructions in the manifest and final report:
+
+```
+The following dependencies need to be installed:
+
+Frontend:
+  npm install react-query@^4.0.0 zod@^3.22.0 axios@^1.6.0
+  npm install -D @types/node@^18.0.0
+
+Backend:
+  npm install @nestjs/common@^10.0.0 prisma@^5.0.0
+  npm install -D @types/jest@^29.0.0
+```
+
+---
+
+## Manifest Output
+
+After completing code generation, write a manifest to `.generated/code/manifest.json`.
+
+**Schema**: See `schemas/manifest-schema.json` for full specification.
+
+**Required fields**:
+```json
+{
+  "phase": "code",
+  "status": "complete | partial | failed",
+  "timestamp": "2026-03-06T10:50:00Z",
+  "version": "1.0.0",
+  "files_generated": [
+    {
+      "path": "src/app/login/page.tsx",
+      "type": "created",
+      "size_bytes": 3072
+    },
+    {
+      "path": "src/components/LoginForm.tsx",
+      "type": "created",
+      "size_bytes": 2048
+    }
+  ],
+  "warnings": [
+    {
+      "code": "OVERWRITE_SKIPPED",
+      "message": "Skipped overwriting existing file",
+      "context": {
+        "file": "src/app/layout.tsx",
+        "reason": "File already exists with substantial content"
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": "MISSING_SPEC",
+      "message": "No API contract found for module: payments"
+    }
+  ],
+  "assumptions": [
+    "Used axios for HTTP client as it's already in dependencies",
+    "Assumed API base URL: /api (no environment config found)"
+  ],
+  "dependencies": {
+    "frontend": {
+      "dependencies": {
+        "react-query": "^4.0.0",
+        "zod": "^3.22.0"
+      },
+      "devDependencies": {
+        "@types/node": "^18.0.0"
+      }
+    },
+    "backend": {
+      "dependencies": {
+        "@nestjs/common": "^10.0.0",
+        "prisma": "^5.0.0"
+      }
+    }
+  },
+  "metadata": {
+    "requirements_file": "requirements.md",
+    "code_generated": {
+      "frontend_files": 12,
+      "backend_files": 8,
+      "shared_files": 4
+    }
+  }
+}
+```
+
+**Rules**:
+- Set `status` to `"complete"` if all planned files were generated successfully
+- Set `status` to `"partial"` if some files couldn't be generated (document in `warnings` or `errors`)
+- Set `status` to `"failed"` if critical blocking error occurred
+- List ALL files created with actual byte sizes
+- Document ALL warnings (overwrites skipped, missing specs, etc.)
+- List ALL assumptions made during generation
+- Include dependency tracking in manifest
+- Provide code generation statistics in metadata

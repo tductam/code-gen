@@ -231,30 +231,52 @@ Even in Init Mode, write the same analysis files to `.generated/analysis/` docum
 
 ## Manifest Output
 
-After generating ALL analysis files, write a manifest to `.generated/analysis/manifest.json`:
+After generating ALL analysis files, write a manifest to `.generated/analysis/manifest.json`.
 
+**Schema**: See `schemas/manifest-schema.json` for full specification.
+
+**Required fields**:
 ```json
 {
-  "status": "complete",
-  "mode": "explorer | init",
-  "timestamp": "ISO 8601 timestamp",
+  "phase": "init",
+  "status": "complete | partial | failed",
+  "timestamp": "2026-03-06T10:30:00Z",
+  "version": "1.0.0",
   "files_generated": [
-    "project-overview.md",
-    "tech-stack.md",
-    "frontend-structure.md",
-    "backend-structure.md",
-    "conventions.md"
+    {
+      "path": ".generated/analysis/project-overview.md",
+      "type": "created",
+      "size_bytes": 2048
+    }
   ],
   "warnings": [
-    "Section X had Low confidence — limited files to analyze"
-  ]
+    {
+      "code": "LOW_CONFIDENCE",
+      "message": "Section X had low confidence — limited files to analyze",
+      "context": {"section": "frontend-structure"}
+    }
+  ],
+  "assumptions": [
+    "No existing git repository found, git commands will be skipped",
+    "Using default Next.js + NestJS stack as no tech stack was specified"
+  ],
+  "metadata": {
+    "requirements_file": "requirements.md",
+    "project_type": "new | existing | monorepo | frontend-only | backend-only | fullstack",
+    "tech_stack": {
+      "frontend": "Next.js",
+      "backend": "NestJS"
+    }
+  }
 }
 ```
 
-Rules:
+**Rules**:
 - Set `status` to `"complete"` only if ALL 5 analysis files were successfully created
-- Set `status` to `"partial"` if any file could not be generated (e.g., no frontend detected → `frontend-structure.md` still created but marked as "Not applicable")
-- List any Low-confidence sections in `warnings`
+- Set `status` to `"partial"` if any file could not be generated (e.g., no frontend detected)
+- Set `status` to `"failed"` if critical errors occurred
+- List any low-confidence sections or issues in `warnings` array
+- Document all assumptions made during analysis
 - The manifest is read by downstream agents to validate input completeness
 
 ---

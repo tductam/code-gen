@@ -31,34 +31,52 @@ If no `--phase` flag is provided → run the **full pipeline** (all 3 phases seq
 
 ## Git Checkpoint Helper
 
-Before each phase, create a safety checkpoint:
+Before each phase, create a safety checkpoint.
 
-```bash
+### For Windows (PowerShell/CMD):
+
+```powershell
 # Checkpoint: save current state before making changes
-git add -A && git stash push -m "claude-gen-checkpoint: before <phase-name> — $(date -Iseconds)" 2>/dev/null || true
+git add -A 2>$null; if ($?) { git stash push -m "claude-gen-checkpoint: before <phase-name> -- $(Get-Date -Format o)" 2>$null }
 ```
 
 If a phase **fails** (agent reports error or required output files are missing):
 
-```bash
+```powershell
 # Rollback: restore state from before the failed phase
-git stash pop 2>/dev/null || true
+git stash pop 2>$null
 ```
 
 If a phase **succeeds**, drop the stash:
 
-```bash
+```powershell
 # Success: discard the checkpoint stash
-git stash drop 2>/dev/null || true
+git stash drop 2>$null
 ```
 
 After the **final successful phase**, create a commit:
 
+```powershell
+git add -A 2>$null; if ($?) { git commit -m "claude-gen: generated from <requirements-filename>" 2>$null }
+```
+
+### For Unix/Linux/macOS (Bash):
+
 ```bash
+# Checkpoint: save current state before making changes
+git add -A && git stash push -m "claude-gen-checkpoint: before <phase-name> — $(date -Iseconds)" 2>/dev/null || true
+
+# Rollback on failure
+git stash pop 2>/dev/null || true
+
+# Success: drop checkpoint
+git stash drop 2>/dev/null || true
+
+# Final commit
 git add -A && git commit -m "claude-gen: generated from <requirements-filename>" 2>/dev/null || true
 ```
 
-> **Note**: All git commands use `2>/dev/null || true` to gracefully handle cases where git is not initialized or the working directory is not a git repo.
+> **Note**: All git commands gracefully handle cases where git is not initialized or the working directory is not a git repo. Choose the command set appropriate for your operating system.
 
 ---
 

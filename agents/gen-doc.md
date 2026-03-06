@@ -23,10 +23,11 @@ Read these files before starting:
 Before generating any documents:
 
 1. Read `.generated/analysis/manifest.json`
-2. Verify `status` is `"complete"` or `"partial"`
-3. If manifest is missing or `status` is neither → **STOP** and report: `"Cannot proceed: init-explorer analysis is missing or invalid. Run /claude-gen:generate with --phase init first."`
-4. If `status` is `"partial"` → **WARN** the user but continue, noting which analysis sections may be incomplete
-5. Verify at least `project-overview.md` and `tech-stack.md` exist in `.generated/analysis/`
+2. Verify schema: must have `phase: "init"`, `status`, `timestamp`, `version`
+3. Verify `status` is `"complete"` or `"partial"`
+4. If manifest is missing or invalid → **STOP** and report: `"Cannot proceed: init-explorer analysis is missing or invalid. Run /claude-gen:generate with --phase init first."`
+5. If `status` is `"partial"` → **WARN** the user but continue, noting which analysis sections may be incomplete (check `warnings` array)
+6. Verify at least `project-overview.md` and `tech-stack.md` exist in `.generated/analysis/`
 
 ## Output Directory
 
@@ -34,13 +35,72 @@ Write ALL documents to `.generated/docs/`. Create subdirectories as needed.
 
 ```
 .generated/docs/
-├── PRD.md
-├── SRS.md
+├── BRD.md                  # Business Requirements Document
+├── PRD.md                  # Product Requirements Document
+├── SRS.md                  # Software Requirements Specification
 ├── api-contracts/
 │   └── <module-name>.md    # One file per API module
 └── ui-mockups/
     └── screen-<name>.md    # One file per screen
 ```
+
+---
+
+## Phase 0: Generate BRD (Business Requirements Document)
+
+Use `templates/brd-template.md` as the base structure.
+
+### Content to generate:
+
+**1. Executive Summary**
+- Product vision (high-level)
+- Business problem/opportunity
+- Strategic alignment with company goals
+
+**2. Business Objectives**
+- 3-5 primary business objectives with target metrics
+- Success criteria (measurable)
+
+**3. Stakeholders**
+- Primary stakeholders (sponsor, owner, key users)
+- Secondary stakeholders (departments, roles)
+
+**4. Market Analysis**
+- Target market segments (if applicable)
+- Competitive landscape (if specified in requirements)
+- Market need/pain point
+
+**5. User Personas**
+- Extract or infer 2-4 user personas from requirements
+- Demographics, goals, pain points, expected value
+
+**6. Business Requirements**
+- High-level business capabilities needed (BR-001, BR-002, etc.)
+- Link to business value and user personas
+- Categorize: Revenue/Efficiency/Compliance/Experience
+
+**7. Scope**
+- In scope: MVP and post-MVP features
+- Out of scope: explicitly excluded items
+
+**8. Financial Analysis**
+- Investment required (development, infrastructure, marketing)
+- Expected revenue/savings (if estimable)
+- ROI analysis (can be marked as TBD if not specified)
+
+**9. Risks and Mitigation**
+- Technical risks, market risks, resource risks
+- Mitigation strategies
+
+**10. Implementation Timeline**
+- Milestone plan with phases
+- Gantt chart using Mermaid
+
+**11. Success Metrics & KPIs**
+- Launch metrics (first 90 days)
+- Long-term metrics (6-12 months)
+
+> **Note**: If requirements file lacks business context, make reasonable assumptions and document them in the manifest. BRD provides business justification that feeds into PRD.
 
 ---
 
@@ -53,12 +113,14 @@ Use `templates/prd-template.md` as the base structure.
 **1. Overview**
 - Extract product name, problem statement, target users from requirements
 - Define 3-5 measurable success metrics (KPIs)
+- **Cross-reference BRD**: Link to business objectives (BO-001, BO-002, etc.)
 
 **2. User Stories**
 - Convert each feature from requirements into user stories
 - Format: `[US-XXX] [Priority] As a <role>, I want <action>, so that <benefit>`
 - Prioritize: P1 = MVP essential, P2 = important, P3 = nice-to-have
 - Each story MUST have acceptance criteria (Given/When/Then format)
+- **Cross-reference BRD**: Map user stories to business requirements (BR-001, BR-002, etc.)
 
 **3. Feature Requirements**
 - Group features by module/domain
@@ -282,33 +344,62 @@ Create file: `.generated/docs/api-contracts/<module-name>.md`
 
 ## Manifest Output
 
-After generating ALL documents, write a manifest to `.generated/docs/manifest.json`:
+After generating ALL documents, write a manifest to `.generated/docs/manifest.json`.
 
+**Schema**: See `schemas/manifest-schema.json` for full specification.
+
+**Required fields**:
 ```json
 {
-  "status": "complete",
-  "timestamp": "ISO 8601 timestamp",
-  "prd": true,
-  "srs": true,
-  "ui_mockups": ["screen-login", "screen-dashboard"],
-  "api_contracts": ["auth", "users", "products"],
+  "phase": "docs",
+  "status": "complete | partial | failed",
+  "timestamp": "2026-03-06T10:35:00Z",
+  "version": "1.0.0",
+  "files_generated": [
+    {
+      "path": ".generated/docs/BRD.md",
+      "type": "created",
+      "size_bytes": 4096
+    },
+    {
+      "path": ".generated/docs/PRD.md",
+      "type": "created",
+      "size_bytes": 8192
+    }
+  ],
+  "warnings": [
+    {
+      "code": "MISSING_SCREEN_DETAILS",
+      "message": "Some screens lack detailed descriptions in requirements",
+      "context": {
+        "screens": ["Settings", "Profile"]
+      }
+    }
+  ],
   "assumptions": [
     "Assumed JWT-based auth since not specified in requirements",
     "Assumed PostgreSQL since no database preference given"
   ],
-  "cross_references": {
-    "total_user_stories": 12,
-    "total_screens": 5,
-    "total_api_modules": 3
+  "metadata": {
+    "requirements_file": "requirements.md",
+    "documents_generated": {
+      "prd": true,
+      "brd": true,
+      "srs": true,
+      "ui_mockups": ["screen-login.md", "screen-dashboard.md"],
+      "api_contracts": ["auth.md", "users.md", "products.md"]
+    }
   }
 }
 ```
 
-Rules:
-- Set `status` to `"complete"` only if PRD, SRS, at least 1 UI mockup, and at least 1 API contract were generated
+**Rules**:
+- Set `status` to `"complete"` only if BRD, PRD, SRS, at least 1 UI mockup, and at least 1 API contract were generated
 - Set `status` to `"partial"` if any required document is missing
+- Set `status` to `"failed"` if critical errors occurred
 - List ALL assumptions made during generation
-- `cross_references` helps gen-code agent know the scope
+- Document warnings for missing details or inferred specifications
+- Include file sizes for all generated files
 
 ---
 

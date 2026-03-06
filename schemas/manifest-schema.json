@@ -1,0 +1,341 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Claude Gen Manifest Schema",
+  "description": "Validation manifest for Claude Gen plugin phases",
+  "type": "object",
+  "required": ["phase", "status", "timestamp", "version"],
+  "properties": {
+    "phase": {
+      "type": "string",
+      "enum": ["init", "docs", "code"],
+      "description": "Which phase generated this manifest"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["complete", "partial", "failed"],
+      "description": "Completion status of the phase"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when manifest was created"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Plugin version that generated this manifest"
+    },
+    "files_generated": {
+      "type": "array",
+      "description": "List of files created or modified by this phase",
+      "items": {
+        "type": "object",
+        "required": ["path", "type"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Relative path to the file"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["created", "modified", "deleted"],
+            "description": "Type of file operation"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "File size in bytes"
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Non-fatal warnings encountered during execution",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Warning code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable warning message"
+          },
+          "context": {
+            "type": "object",
+            "description": "Additional context about the warning"
+          }
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Errors encountered during execution",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "Error code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message"
+          },
+          "stack": {
+            "type": "string",
+            "description": "Stack trace if available"
+          }
+        }
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "description": "Assumptions made during generation",
+      "items": {
+        "type": "string"
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "description": "Dependencies identified or added (only for code phase)",
+      "properties": {
+        "frontend": {
+          "type": "object",
+          "properties": {
+            "dependencies": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "devDependencies": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "backend": {
+          "type": "object",
+          "properties": {
+            "dependencies": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "devDependencies": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Phase-specific metadata",
+      "properties": {
+        "requirements_file": {
+          "type": "string",
+          "description": "Path to the requirements file used as input"
+        },
+        "project_type": {
+          "type": "string",
+          "enum": ["new", "existing", "monorepo", "frontend-only", "backend-only", "fullstack"],
+          "description": "Type of project (init phase only)"
+        },
+        "tech_stack": {
+          "type": "object",
+          "description": "Detected or chosen tech stack (init phase only)"
+        },
+        "documents_generated": {
+          "type": "object",
+          "properties": {
+            "prd": {
+              "type": "boolean"
+            },
+            "brd": {
+              "type": "boolean"
+            },
+            "srs": {
+              "type": "boolean"
+            },
+            "ui_mockups": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "api_contracts": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Documents generated (docs phase only)"
+        },
+        "code_generated": {
+          "type": "object",
+          "properties": {
+            "frontend_files": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "backend_files": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "shared_files": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "description": "Code generation statistics (code phase only)"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "phase": "init",
+      "status": "complete",
+      "timestamp": "2026-03-06T10:30:00Z",
+      "version": "1.0.0",
+      "files_generated": [
+        {
+          "path": ".generated/analysis/project-overview.md",
+          "type": "created",
+          "size_bytes": 2048
+        },
+        {
+          "path": ".generated/analysis/tech-stack.md",
+          "type": "created",
+          "size_bytes": 1536
+        }
+      ],
+      "warnings": [],
+      "assumptions": [
+        "No existing git repository found, git commands will be skipped",
+        "Using default Next.js + NestJS stack as no tech stack was specified"
+      ],
+      "metadata": {
+        "requirements_file": "requirements.md",
+        "project_type": "new",
+        "tech_stack": {
+          "frontend": "Next.js",
+          "backend": "NestJS"
+        }
+      }
+    },
+    {
+      "phase": "docs",
+      "status": "complete",
+      "timestamp": "2026-03-06T10:35:00Z",
+      "version": "1.0.0",
+      "files_generated": [
+        {
+          "path": ".generated/docs/BRD.md",
+          "type": "created",
+          "size_bytes": 4096
+        },
+        {
+          "path": ".generated/docs/PRD.md",
+          "type": "created",
+          "size_bytes": 8192
+        },
+        {
+          "path": ".generated/docs/SRS.md",
+          "type": "created",
+          "size_bytes": 12288
+        }
+      ],
+      "warnings": [
+        {
+          "code": "MISSING_SCREEN_DETAILS",
+          "message": "Some screens lack detailed descriptions in requirements",
+          "context": {
+            "screens": ["Settings", "Profile"]
+          }
+        }
+      ],
+      "assumptions": [
+        "Using JWT authentication as auth method was not specified",
+        "Database schema inferred from feature descriptions"
+      ],
+      "metadata": {
+        "requirements_file": "requirements.md",
+        "documents_generated": {
+          "prd": true,
+          "brd": true,
+          "srs": true,
+          "ui_mockups": ["screen-login.md", "screen-dashboard.md"],
+          "api_contracts": ["auth.md", "users.md"]
+        }
+      }
+    },
+    {
+      "phase": "code",
+      "status": "partial",
+      "timestamp": "2026-03-06T10:50:00Z",
+      "version": "1.0.0",
+      "files_generated": [
+        {
+          "path": "src/app/login/page.tsx",
+          "type": "created",
+          "size_bytes": 3072
+        }
+      ],
+      "warnings": [
+        {
+          "code": "OVERWRITE_SKIPPED",
+          "message": "Skipped overwriting existing file",
+          "context": {
+            "file": "src/app/layout.tsx"
+          }
+        }
+      ],
+      "errors": [
+        {
+          "code": "MISSING_DEPENDENCY",
+          "message": "Required dependency not found: @prisma/client"
+        }
+      ],
+      "assumptions": [],
+      "dependencies": {
+        "frontend": {
+          "dependencies": {
+            "react-query": "^4.0.0",
+            "zod": "^3.22.0"
+          },
+          "devDependencies": {
+            "@types/node": "^18.0.0"
+          }
+        },
+        "backend": {
+          "dependencies": {
+            "@nestjs/common": "^10.0.0",
+            "prisma": "^5.0.0"
+          }
+        }
+      },
+      "metadata": {
+        "requirements_file": "requirements.md",
+        "code_generated": {
+          "frontend_files": 12,
+          "backend_files": 8,
+          "shared_files": 4
+        }
+      }
+    }
+  ]
+}
